@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using Core.Entities;
+using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -20,16 +21,16 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly StoreContext _context;
-        public ProductsController(StoreContext context)
+        private readonly IProductRepository _productService;
+        public ProductsController(IProductRepository productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<Product>>> GetProducst()
         {
-            var products = await _context.Products.ToListAsync();
+            var products = await _productService.GetProductsAsync();
 
             return Ok(products);
 
@@ -38,9 +39,23 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id )
         {
-            return await _context.Products.FindAsync(id);
+            return await _productService.GetProductByIdAsync(id);
 
         }
+
+         [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetProductBrands()
+        {
+            return Ok(await _productService.GetProductBrandsAsync());
+
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<ProductType>>> GetProductTypes()
+        {
+            return Ok(await _productService.GetProductTypesAsync());
+
+        }        
 
         public override bool Equals(object obj)
         {
