@@ -40,13 +40,10 @@ namespace API
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
             });
-            services.AddCors(opt =>
+            services.AddCors(p => p.AddPolicy("corspolicy", build =>
             {
-                opt.AddPolicy("CorsPolicy",policy=>
-                {
-                    policy.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200");
-                });
-            });
+                build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -60,11 +57,10 @@ namespace API
             }
 
             app.UseStatusCodePagesWithReExecute("/erros/{0}");
-            app.UseHttpsRedirection();
-            app.UseCors("CorsPolicy");
             app.UseRouting();
             app.UseStaticFiles();
-
+            app.UseCors("corspolicy");
+            app.UseHttpsRedirection();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
